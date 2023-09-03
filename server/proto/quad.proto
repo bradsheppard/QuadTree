@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+
+package server;
+
+service Quad {
+    rpc AddPoint(AddPointRequest) returns (google.protobuf.Empty);
+    rpc DeletePoint(DeletePointRequest) returns (google.protobuf.Empty);
+}
+
+message AddPointRequest {
+    Point point = 1;
+}
+
+message DeletePointRequest {
+    Point point = 1;
+}
+
+message Point {
+    int64 x = 1;
+    int64 y = 2;
+}
+
