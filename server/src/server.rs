@@ -46,8 +46,35 @@ impl Quad for QuadService {
         }
     }
 
-    async fn delete_point(&self, _request: Request<DeletePointRequest>) -> Result<Response<()>, Status> {
-        return Ok(Response::new(()));
+    async fn delete_point(&self, request: Request<DeletePointRequest>) -> Result<Response<()>, Status> {
+        let point = request.into_inner().point;
+
+        match point {
+            Some(p) => {
+                let point = Point{
+                    x: p.x,
+                    y: p.y
+                };
+
+                let quad = self.in_memory_quad.as_ref();
+                let lock = quad.write();
+
+                match lock {
+                    Ok(mut value) => {
+                        value.delete(&point);
+                        return Ok(Response::new(()));
+                    },
+                    Err(e) => {
+                        print!("Error acquiring write lock {}", e);
+                        return Err(Status::internal("Internal Error"));
+                    }
+                }
+            },
+            None => {
+                print!("Invalid input");
+                return Err(Status::invalid_argument("Invalid input"));
+            }
+        }
     }
 }
 

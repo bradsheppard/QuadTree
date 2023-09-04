@@ -11,7 +11,7 @@ pub struct Quad {
 
     points: Vec<Point>,
     capacity: usize,
-    is_child: bool,
+    is_leaf: bool,
 
     top_left_quad: Option<Box<Quad>>,
     top_right_quad: Option<Box<Quad>>,
@@ -33,7 +33,7 @@ impl Quad {
 
             points: vec![],
             capacity: 1,
-            is_child: true,
+            is_leaf: true,
 
             top_left_quad: None,
             top_right_quad: None,
@@ -49,7 +49,7 @@ impl Quad {
 
             points: vec![],
             capacity,
-            is_child: true,
+            is_leaf: true,
 
             top_left_quad: None,
             top_right_quad: None,
@@ -117,11 +117,11 @@ impl Quad {
             return
         }
 
-        if self.points.len() < self.capacity {
-            self.points.push(point.to_owned());
-        }
-        else {
-            if self.is_child {
+        if self.is_leaf {
+            if self.points.len() < self.capacity {
+                self.points.push(point.to_owned());
+            }
+            else {
                 self.subdivide();
 
                 for existing_point in &self.points {
@@ -132,13 +132,35 @@ impl Quad {
                 }
 
                 self.points.clear();
-                self.is_child = false
-            }
+                self.is_leaf = false;
 
+                self.top_left_quad.as_mut().unwrap().insert(point);
+                self.bottom_left_quad.as_mut().unwrap().insert(point);
+                self.top_right_quad.as_mut().unwrap().insert(point);
+                self.bottom_right_quad.as_mut().unwrap().insert(point);
+            }
+        }
+        else {
             self.top_left_quad.as_mut().unwrap().insert(point);
             self.bottom_left_quad.as_mut().unwrap().insert(point);
             self.top_right_quad.as_mut().unwrap().insert(point);
             self.bottom_right_quad.as_mut().unwrap().insert(point);
+        }
+    }
+
+    pub fn delete(&mut self, point: &Point) {
+        if !self.check_boundary(&point) {
+            return
+        }
+
+        if self.is_leaf {
+            self.points.retain(|x| *x != *point);
+        }
+        else {
+            self.top_left_quad.as_mut().unwrap().delete(point);
+            self.bottom_left_quad.as_mut().unwrap().delete(point);
+            self.top_right_quad.as_mut().unwrap().delete(point);
+            self.bottom_right_quad.as_mut().unwrap().delete(point);
         }
     }
 
@@ -147,7 +169,7 @@ impl Quad {
             return false
         }
 
-        if self.is_child && self.points.contains(point) {
+        if self.is_leaf && self.points.contains(point) {
             return true
         }
 
@@ -223,5 +245,60 @@ mod tests {
         assert_eq!(non_existant_point_search, false);
     }
 
+    #[test]
+    fn test_insert_and_remove() {
+        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 4);
+
+        let point = Point{
+            x: 5,
+            y: 5
+        };
+
+        quad.insert(&point);
+        quad.delete(&point);
+
+        let point_search = quad.search(&point);
+
+        assert_eq!(point_search, false);
+    }
+
+    #[test]
+    fn test_insert_and_get_with_subdivide() {
+        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 1);
+
+        let existant_point = Point{
+            x: 5,
+            y: 5
+        };
+        let nonexistant_point = Point{
+            x: 7,
+            y: 7
+        };
+
+        quad.insert(&existant_point);
+
+        let existant_point_search = quad.search(&existant_point);
+        let non_existant_point_search = quad.search(&nonexistant_point);
+
+        assert_eq!(existant_point_search, true);
+        assert_eq!(non_existant_point_search, false);
+    }
+
+    #[test]
+    fn test_insert_and_remove_with_subdivide() {
+        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 1);
+
+        let point = Point{
+            x: 5,
+            y: 5
+        };
+
+        quad.insert(&point);
+        quad.delete(&point);
+
+        let point_search = quad.search(&point);
+
+        assert_eq!(point_search, false);
+    }
 }
 
