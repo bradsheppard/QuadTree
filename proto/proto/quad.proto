@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 
 
-package server;
+package quad;
 
 service Quad {
     rpc AddPoint(AddPointRequest) returns (google.protobuf.Empty);

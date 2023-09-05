@@ -149,6 +149,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "client"
+version = "0.1.0"
+dependencies = [
+ "proto",
+ "tokio",
+ "tonic",
+]
+
+[[package]]
 name = "either"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -624,6 +633,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "proto"
+version = "0.1.0"
+dependencies = [
+ "prost",
+ "tonic",
+ "tonic-build",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -750,6 +768,7 @@ name = "server"
 version = "0.1.0"
 dependencies = [
  "prost",
+ "proto",
  "storage",
  "tokio",
  "tonic",

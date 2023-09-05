@@ -1,12 +1,7 @@
 use std::sync::{Arc, RwLock};
 use tonic::{Request, Response, Status, transport::Server};
-use server::quad_server::{Quad, QuadServer};
 use storage::{Quad as InMemoryQuad, Point};
-use self::server::{AddPointRequest, DeletePointRequest};
-
-pub mod server {
-    tonic::include_proto!("server");
-}
+use proto::{AddPointRequest, DeletePointRequest, Quad, QuadServer};
 
 #[derive(Debug, Default)]
 pub struct QuadService {
