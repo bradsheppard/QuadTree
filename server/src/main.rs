@@ -29,13 +29,13 @@ impl Quad for QuadService {
                         return Ok(Response::new(()));
                     },
                     Err(e) => {
-                        print!("Error acquiring write lock {}", e);
+                        println!("Error acquiring write lock {}", e);
                         return Err(Status::internal("Internal Error"));
                     }
                 }
             }
             None => {
-                print!("Invalid input");
+                println!("Invalid input");
                 return Err(Status::invalid_argument("Invalid input"));
             }
         }
@@ -60,13 +60,13 @@ impl Quad for QuadService {
                         return Ok(Response::new(()));
                     },
                     Err(e) => {
-                        print!("Error acquiring write lock {}", e);
+                        println!("Error acquiring write lock {}", e);
                         return Err(Status::internal("Internal Error"));
                     }
                 }
             },
             None => {
-                print!("Invalid input");
+                println!("Invalid input");
                 return Err(Status::invalid_argument("Invalid input"));
             }
         }
@@ -77,7 +77,7 @@ impl Quad for QuadService {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "[::1]:50051".parse().unwrap();
 
-    print!("Quad server listening on {}", addr);
+    println!("Quad server listening on {}", addr);
 
     let service = QuadService{
         in_memory_quad: Arc::new(RwLock::new(InMemoryQuad::new()))
