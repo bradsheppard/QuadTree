@@ -1,13 +1,10 @@
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct Point {
-    pub x: i64,
-    pub y: i64
-}
+use crate::circle::Circle;
+use crate::point::Point;
+use crate::rectangle::Rectangle;
 
 #[derive(Default, Debug)]
 pub struct Quad {
-    top_left: Point,
-    bottom_right: Point,
+    border: Rectangle,
 
     points: Vec<Point>,
     capacity: usize,
@@ -22,14 +19,7 @@ pub struct Quad {
 impl Quad {
     pub fn new() -> Quad {
         return Quad {
-            top_left: Point{
-                x: 0,
-                y: 0
-            },
-            bottom_right: Point{
-                x: 0,
-                y: 0
-            },
+            border: Rectangle::new(),
 
             points: vec![],
             capacity: 1,
@@ -44,8 +34,7 @@ impl Quad {
 
     pub fn from(top_left: Point, bottom_right: Point, capacity: usize) -> Quad {
         return Quad {
-            top_left,
-            bottom_right,
+            border: Rectangle::from(&top_left, &bottom_right),
 
             points: vec![],
             capacity,
@@ -60,52 +49,52 @@ impl Quad {
 
     fn subdivide(&mut self) {
         let top_left_corner_1 = Point{
-            x: self.top_left.x,
-            y: self.top_left.y
+            x: self.border.top_left.x,
+            y: self.border.top_left.y
         };
 
         let top_left_corner_2 = Point{
-            x: (self.top_left.x + self.bottom_right.x) / 2,
-            y: (self.top_left.y + self.bottom_right.y) / 2
+            x: (self.border.top_left.x + self.border.bottom_right.x) / 2,
+            y: (self.border.top_left.y + self.border.bottom_right.y) / 2
         };
 
         let new_quad = Quad::from(top_left_corner_1, top_left_corner_2, self.capacity);
         self.top_left_quad = Some(Box::new(new_quad));
 
         let bottom_left_corner_1 = Point{
-            x: self.top_left.x,
-            y: (self.top_left.y + self.bottom_right.y) / 2
+            x: self.border.top_left.x,
+            y: (self.border.top_left.y + self.border.bottom_right.y) / 2
         };
 
         let bottom_left_corner_2 = Point{
-            x: (self.top_left.x + self.bottom_right.x) / 2,
-            y: self.bottom_right.y
+            x: (self.border.top_left.x + self.border.bottom_right.x) / 2,
+            y: self.border.bottom_right.y
         };
 
         let new_quad = Quad::from(bottom_left_corner_1, bottom_left_corner_2, self.capacity);
         self.bottom_left_quad = Some(Box::new(new_quad));
 
         let top_right_corner_1 = Point{
-            x: (self.top_left.x + self.bottom_right.x) / 2,
-            y: self.top_left.y
+            x: (self.border.top_left.x + self.border.bottom_right.x) / 2,
+            y: self.border.top_left.y
         };
 
         let top_right_corner_2 = Point{
-            x: self.bottom_right.x,
-            y: (self.top_left.y + self.bottom_right.y) / 2
+            x: self.border.bottom_right.x,
+            y: (self.border.top_left.y + self.border.bottom_right.y) / 2
         };
 
         let new_quad = Quad::from(top_right_corner_1, top_right_corner_2, self.capacity);
         self.top_right_quad = Some(Box::new(new_quad));
 
         let bottom_right_corner_1 = Point{
-            x: (self.top_left.x + self.bottom_right.x) / 2,
-            y: (self.top_left.y + self.bottom_right.y) / 2
+            x: (self.border.top_left.x + self.border.bottom_right.x) / 2,
+            y: (self.border.top_left.y + self.border.bottom_right.y) / 2
         };
 
         let bottom_right_corner_2 = Point{
-            x: self.bottom_right.x,
-            y: self.bottom_right.y
+            x: self.border.bottom_right.x,
+            y: self.border.bottom_right.y
         };
 
         let new_quad = Quad::from(bottom_right_corner_1, bottom_right_corner_2, self.capacity);
@@ -164,6 +153,34 @@ impl Quad {
         }
     }
 
+    pub fn find_within_range(&self, circle: &Circle) -> Vec<Point> {
+        let mut points = vec![];
+
+        self.find_within_range_helper(circle, &mut points);
+
+        return points;
+    }
+
+    pub fn find_within_range_helper(&self, circle: &Circle, points: &mut Vec<Point>) {
+        if circle.intersects(&self.border) {
+            if !self.is_leaf {
+                self.top_left_quad.as_ref().unwrap().find_within_range_helper(circle, points);
+                self.top_right_quad.as_ref().unwrap().find_within_range_helper(circle, points);
+                self.bottom_left_quad.as_ref().unwrap().find_within_range_helper(circle, points);
+                self.bottom_right_quad.as_ref().unwrap().find_within_range_helper(circle, points);
+            }
+            else {
+                let mut found_points = self.points
+                    .iter()
+                    .filter(|p| circle.contains(p))
+                    .map(|p| p.clone())
+                    .collect::<Vec<Point>>();
+
+                points.append(&mut found_points);
+            }
+        }
+    }
+
     pub fn search(&self, point: &Point) -> bool {
         if !self.check_boundary(point) {
             return false
@@ -173,8 +190,8 @@ impl Quad {
             return true
         }
 
-        if (self.top_left.x + self.bottom_right.x) / 2 >= point.x {
-            if (self.top_left.y + self.bottom_right.y) / 2 >= point.y {
+        if (self.border.top_left.x + self.border.bottom_right.x) / 2 >= point.x {
+            if (self.border.top_left.y + self.border.bottom_right.y) / 2 >= point.y {
                 if self.top_left_quad.is_none() {
                     return false
                 }
@@ -192,7 +209,7 @@ impl Quad {
             }
         }
         else {
-            if (self.top_left.y + self.bottom_right.y) / 2 >= point.y {
+            if (self.border.top_left.y + self.border.bottom_right.y) / 2 >= point.y {
                 if self.top_right_quad.is_none() {
                     return false;
                 }
@@ -212,13 +229,15 @@ impl Quad {
     }
 
     fn check_boundary(&self, point: &Point) -> bool {
-        return point.x >= self.top_left.x && point.x <= self.bottom_right.x && 
-                point.y >= self.top_left.y && point.y <= self.bottom_right.y
+        return point.x >= self.border.top_left.x && point.x <= self.border.bottom_right.x && 
+                point.y >= self.border.top_left.y && point.y <= self.border.bottom_right.y
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::circle::Circle;
+
     use super::Quad;
     use super::Point;
 
@@ -299,6 +318,55 @@ mod tests {
         let point_search = quad.search(&point);
 
         assert_eq!(point_search, false);
+    }
+
+    #[test]
+    fn test_find_within_valid_range() {
+        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 1);
+
+        let point = Point{
+            x: 5,
+            y: 5
+        };
+
+        quad.insert(&point);
+
+        let circle = Circle{
+            center: Point{
+                x: 0,
+                y: 0
+            },
+            radius: 10
+        };
+
+        let points = quad.find_within_range(&circle);
+
+        assert_eq!(points.len(), 1);
+        assert_eq!(points[0], point);
+    }
+
+    #[test]
+    fn test_find_within_invalid_range() {
+        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 1);
+
+        let point = Point{
+            x: 5,
+            y: 5
+        };
+
+        quad.insert(&point);
+
+        let circle = Circle{
+            center: Point{
+                x: 0,
+                y: 0
+            },
+            radius: 1
+        };
+
+        let points = quad.find_within_range(&circle);
+
+        assert_eq!(points.len(), 0);
     }
 }
 

@@ -1,4 +1,7 @@
+mod circle;
 mod quad;
+mod point;
+mod rectangle;
 
 pub use quad::Quad;
-pub use quad::Point;
+pub use point::Point;
