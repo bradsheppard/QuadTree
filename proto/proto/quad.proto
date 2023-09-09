@@ -8,6 +8,7 @@ package quad;
 service Quad {
     rpc AddPoint(AddPointRequest) returns (google.protobuf.Empty);
     rpc DeletePoint(DeletePointRequest) returns (google.protobuf.Empty);
+    rpc FindWithinRange(FindWithinRangeRequest) returns (FindWithinRangeResponse);
 }
 
 message AddPointRequest {
@@ -21,5 +22,19 @@ message DeletePointRequest {
 message Point {
     int64 x = 1;
     int64 y = 2;
+}
+
+message Circle {
+    int64 x = 1;
+    int64 y = 2;
+    int64 radius = 3;
+}
+
+message FindWithinRangeRequest {
+    Circle circle = 1;
+}
+
+message FindWithinRangeResponse {
+    repeated Point points = 1;
 }
 
