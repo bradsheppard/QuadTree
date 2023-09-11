@@ -18,11 +18,20 @@ pub struct Quad {
 
 impl Quad {
     pub fn new() -> Quad {
+        let top_left = Point{
+            x: 0,
+            y: 0
+        };
+        let bottom_right = Point{
+            x: 100,
+            y: 100
+        };
+        
         return Quad {
-            border: Rectangle::new(),
+            border: Rectangle::from(&top_left, &bottom_right),
 
             points: vec![],
-            capacity: 1,
+            capacity: 10,
             is_leaf: true,
 
             top_left_quad: None,

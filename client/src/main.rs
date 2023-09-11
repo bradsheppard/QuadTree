@@ -1,4 +1,4 @@
-use proto::{QuadClient, AddPointRequest, Point, DeletePointRequest};
+use proto::{QuadClient, AddPointRequest, Circle, Point, DeletePointRequest, FindWithinRangeRequest};
 use clap::{Parser, Subcommand, Args};
 use tonic::transport::Channel;
 use anyhow::{Result, anyhow};
@@ -12,13 +12,21 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     AddPoint(InputPoint),
-    DeletePoint(InputPoint)
+    DeletePoint(InputPoint),
+    FindWithinRange(InputCircle)
 }
 
 #[derive(Args)]
 struct InputPoint {
     x: i64,
     y: i64
+}
+
+#[derive(Args)]
+struct InputCircle {
+    x: i64,
+    y: i64,
+    radius: i64
 }
 
 #[tokio::main]
@@ -28,12 +36,11 @@ async fn main() -> Result<()> {
     match &cli.command {
         Commands::AddPoint(point) => {
             let request = tonic::Request::new(AddPointRequest{
-                    point: Some(Point{
-                        x: point.x,
-                        y: point.y
-                    })
-                }
-            );
+                point: Some(Point{
+                    x: point.x,
+                    y: point.y
+                })
+            });
 
             let mut client = get_client().await?;
 
@@ -43,18 +50,38 @@ async fn main() -> Result<()> {
         },
         Commands::DeletePoint(point) => {
             let request = tonic::Request::new(DeletePointRequest{
-                    point: Some(Point{
-                        x: point.x,
-                        y: point.y
-                    })
-                }
-            );
+                point: Some(Point{
+                    x: point.x,
+                    y: point.y
+                })
+            });
 
             let mut client = get_client().await?;
 
             let _response = client.delete_point(request)
                 .await
                 .map_err(|_x| anyhow!("Failure deleting point"))?;
+        },
+        Commands::FindWithinRange(circle) => {
+            let request = tonic::Request::new(FindWithinRangeRequest{
+                circle: Some(Circle{
+                    x: circle.x,
+                    y: circle.y, 
+                    radius: circle.radius 
+                })
+            });
+
+            let mut client = get_client().await?;
+
+            let response = client.find_within_range(request)
+                .await
+                .map_err(|_x| anyhow!("Failure finding within range"))?;
+
+            let points = response.into_inner().points;
+
+            for point in points {
+                println!("{}, {}", point.x, point.y);
+            }
         }
     }
 
