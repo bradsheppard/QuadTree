@@ -170,7 +170,7 @@ impl Quad {
         return points;
     }
 
-    pub fn find_within_range_helper(&self, circle: &Circle, points: &mut Vec<Point>) {
+    fn find_within_range_helper(&self, circle: &Circle, points: &mut Vec<Point>) {
         if circle.intersects(&self.border) {
             if !self.is_leaf {
                 self.top_left_quad.as_ref().unwrap().find_within_range_helper(circle, points);
