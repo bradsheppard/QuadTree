@@ -9,7 +9,7 @@ service Quad {
     rpc AddPoint(AddPointRequest) returns (google.protobuf.Empty);
     rpc DeletePoint(DeletePointRequest) returns (google.protobuf.Empty);
     rpc FindWithinRange(FindWithinRangeRequest) returns (FindWithinRangeResponse);
-    rpc GetAllQuads() returns (GetAllQuadsResponse);
+    rpc GetAllQuads(google.protobuf.Empty) returns (GetAllQuadsResponse);
 }
 
 message AddPointRequest {
@@ -40,14 +40,16 @@ message FindWithinRangeResponse {
 }
 
 message GetAllQuadsResponse {
-    Quad quad = 1;
+    QuadNode quadNode = 1;
 }
 
-message Quad {
-    Quad topLeft = 1;
-    Quad bottomRight = 2;
+message QuadNode {
+    QuadNode topLeft = 1;
+    QuadNode topRight = 2;
+    QuadNode bottomLeft = 3;
+    QuadNode bottomRight = 4;
 
-    bool isChild = 3;
+    bool isChild = 5;
     
-    repeated Point points = 4;
+    repeated Point points = 6;
 }

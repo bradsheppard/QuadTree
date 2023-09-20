@@ -4,16 +4,16 @@ use crate::rectangle::Rectangle;
 
 #[derive(Default, Debug)]
 pub struct Quad {
-    border: Rectangle,
+    pub border: Rectangle,
 
-    points: Vec<Point>,
+    pub points: Vec<Point>,
     capacity: usize,
-    is_leaf: bool,
+    pub is_leaf: bool,
 
-    top_left_quad: Option<Box<Quad>>,
-    top_right_quad: Option<Box<Quad>>,
-    bottom_left_quad: Option<Box<Quad>>,
-    bottom_right_quad: Option<Box<Quad>>
+    pub top_left_quad: Option<Box<Quad>>,
+    pub top_right_quad: Option<Box<Quad>>,
+    pub bottom_left_quad: Option<Box<Quad>>,
+    pub bottom_right_quad: Option<Box<Quad>>
 }
 
 impl Quad {

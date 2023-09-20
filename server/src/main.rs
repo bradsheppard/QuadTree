@@ -1,7 +1,7 @@
 use std::sync::{Arc, RwLock};
 use tonic::{Request, Response, Status, transport::Server};
 use storage::{Quad as InMemoryQuad, Point, Circle};
-use proto::{AddPointRequest, DeletePointRequest, FindWithinRangeRequest, FindWithinRangeResponse, Quad, QuadServer};
+use proto::{AddPointRequest, GetAllQuadsResponse, DeletePointRequest, FindWithinRangeRequest, FindWithinRangeResponse, Quad, QuadServer, QuadNode};
 
 #[derive(Debug, Default)]
 pub struct QuadService {
@@ -109,6 +109,94 @@ impl Quad for QuadService {
                 println!("Invalid input");
                 return Err(Status::invalid_argument("Invalid input"));
             }
+        }
+    }
+
+    async fn get_all_quads(&self, request: Request<()>) -> Result<Response<GetAllQuadsResponse>, Status> {
+        let quad = self.in_memory_quad.as_ref();
+        let lock = quad.write();
+
+        match lock {
+            Ok(value) => {
+                let target_quad = proto::QuadNode{
+                    top_left: None,
+                    top_right: None,
+                    bottom_left: None,
+                    bottom_right: None,
+                    is_child: false,
+                    points: vec![]
+                };
+                self.recursive_search(target_quad, value);
+
+                return Ok(Response::new(GetAllQuadsResponse{quad_node: None}));
+            }
+            Err(e) => {
+                println!("Error acquiring write lock {}", e);
+                return Err(Status::internal("Internal Error"));
+            }
+        }
+    }
+}
+
+impl QuadService {
+    fn recursive_search(&self, target_quad: &QuadNode, source_quad: &InMemoryQuad) {
+        for point in source_quad.points {
+            target_quad.points.push(proto::Point{
+                x: point.x,
+                y: point.y
+            });
+        }
+
+        if source_quad.top_left_quad.is_some() {
+            target_quad.top_left = Some(Box::new(QuadNode{
+                top_left: None,
+                top_right: None,
+                bottom_left: None,
+                bottom_right: None,
+                points: vec![],
+                is_child: true
+            }));
+
+            self.recursive_search(target_quad.top_left.unwrap().as_ref(), source_quad.top_left_quad.unwrap().as_ref());
+        }
+
+        if source_quad.top_right_quad.is_some() {
+            target_quad.top_right = Some(Box::new(QuadNode{
+                top_left: None,
+                top_right: None,
+                bottom_left: None,
+                bottom_right: None,
+                points: vec![],
+                is_child: true
+            }));
+
+            self.recursive_search(target_quad.top_right.unwrap().as_ref(), source_quad.top_right_quad.unwrap().as_ref());
+        }
+
+        if source_quad.bottom_left_quad.is_some() {
+            target_quad.bottom_left = Some(Box::new(QuadNode{
+                top_left: None,
+                top_right: None,
+                bottom_left: None,
+                bottom_right: None,
+                points: vec![],
+                is_child: true
+            }));
+
+            self.recursive_search(target_quad.bottom_left.unwrap().as_ref(), source_quad.bottom_left_quad.unwrap().as_ref());
+        }
+
+        if source_quad.bottom_right_quad.is_some() {
+            target_quad.bottom_right = Some(Box::new(QuadNode{
+                top_left: None,
+                top_right: None,
+                bottom_left: None,
+                bottom_right: None,
+                points: vec![],
+                is_child: true
+            }));
+
+            self.recursive_search(target_quad.bottom_right.unwrap().as_ref(), source_quad.bottom_right_quad.unwrap().as_ref());
         }
     }
 }
