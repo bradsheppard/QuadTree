@@ -112,13 +112,13 @@ impl Quad for QuadService {
         }
     }
 
-    async fn get_all_quads(&self, request: Request<()>) -> Result<Response<GetAllQuadsResponse>, Status> {
+    async fn get_all_quads(&self, _request: Request<()>) -> Result<Response<GetAllQuadsResponse>, Status> {
         let quad = self.in_memory_quad.as_ref();
-        let lock = quad.write();
+        let lock = quad.read();
 
         match lock {
             Ok(value) => {
-                let target_quad = proto::QuadNode{
+                let mut target_quad = proto::QuadNode{
                     top_left: None,
                     top_right: None,
                     bottom_left: None,
@@ -126,7 +126,7 @@ impl Quad for QuadService {
                     is_child: false,
                     points: vec![]
                 };
-                self.recursive_search(target_quad, value);
+                self.recursive_search(&mut target_quad, &value);
 
                 return Ok(Response::new(GetAllQuadsResponse{quad_node: None}));
             }
@@ -139,8 +139,8 @@ impl Quad for QuadService {
 }
 
 impl QuadService {
-    fn recursive_search(&self, target_quad: &QuadNode, source_quad: &InMemoryQuad) {
-        for point in source_quad.points {
+    fn recursive_search(&self, target_quad: &mut QuadNode, source_quad: &InMemoryQuad) {
+        for point in &source_quad.points {
             target_quad.points.push(proto::Point{
                 x: point.x,
                 y: point.y
@@ -157,7 +157,7 @@ impl QuadService {
                 is_child: true
             }));
 
-            self.recursive_search(target_quad.top_left.unwrap().as_ref(), source_quad.top_left_quad.unwrap().as_ref());
+            self.recursive_search(target_quad.top_left.as_mut().unwrap(), source_quad.top_left_quad.as_ref().unwrap());
         }
 
         if source_quad.top_right_quad.is_some() {
@@ -170,7 +170,7 @@ impl QuadService {
                 is_child: true
             }));
 
-            self.recursive_search(target_quad.top_right.unwrap().as_ref(), source_quad.top_right_quad.unwrap().as_ref());
+            self.recursive_search(target_quad.top_right.as_mut().unwrap(), source_quad.top_right_quad.as_ref().unwrap());
         }
 
         if source_quad.bottom_left_quad.is_some() {
@@ -183,7 +183,7 @@ impl QuadService {
                 is_child: true
             }));
 
-            self.recursive_search(target_quad.bottom_left.unwrap().as_ref(), source_quad.bottom_left_quad.unwrap().as_ref());
+            self.recursive_search(target_quad.bottom_left.as_mut().unwrap(), source_quad.bottom_left_quad.as_ref().unwrap());
         }
 
         if source_quad.bottom_right_quad.is_some() {
@@ -196,7 +196,7 @@ impl QuadService {
                 is_child: true
             }));
 
-            self.recursive_search(target_quad.bottom_right.unwrap().as_ref(), source_quad.bottom_right_quad.unwrap().as_ref());
+            self.recursive_search(target_quad.bottom_right.as_mut().unwrap(), source_quad.bottom_right_quad.as_ref().unwrap());
         }
     }
 }
