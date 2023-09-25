@@ -13,7 +13,8 @@ struct Cli {
 enum Commands {
     AddPoint(InputPoint),
     DeletePoint(InputPoint),
-    FindWithinRange(InputCircle)
+    FindWithinRange(InputCircle),
+    GetAllQuads
 }
 
 #[derive(Args)]
@@ -81,6 +82,24 @@ async fn main() -> Result<()> {
 
             for point in points {
                 println!("{}, {}", point.x, point.y);
+            }
+        },
+        Commands::GetAllQuads => {
+            let request = tonic::Request::new(());
+
+            let mut client = get_client().await?;
+
+            let response = client.get_all_quads(request)
+                .await
+                .map_err(|_x| anyhow!("Failing getting all quads"))?;
+
+            match response.into_inner().quad_node {
+                Some(quad) => {
+                    println!("{:#?}", quad);
+                },
+                None => {
+                    println!("Cannot display quad");
+                }
             }
         }
     }

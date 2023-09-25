@@ -128,7 +128,7 @@ impl Quad for QuadService {
                 };
                 self.recursive_search(&mut target_quad, &value);
 
-                return Ok(Response::new(GetAllQuadsResponse{quad_node: None}));
+                return Ok(Response::new(GetAllQuadsResponse{quad_node: Some(target_quad)}));
             }
             Err(e) => {
                 println!("Error acquiring write lock {}", e);
