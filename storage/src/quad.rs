@@ -19,12 +19,12 @@ pub struct Quad {
 impl Quad {
     pub fn new() -> Quad {
         let top_left = Point{
-            x: 0,
-            y: 0
+            x: 0.0,
+            y: 0.0
         };
         let bottom_right = Point{
-            x: 100,
-            y: 100
+            x: 10.0,
+            y: 10.0
         };
         
         return Quad {
@@ -63,8 +63,8 @@ impl Quad {
         };
 
         let top_left_corner_2 = Point{
-            x: (self.border.top_left.x + self.border.bottom_right.x) / 2,
-            y: (self.border.top_left.y + self.border.bottom_right.y) / 2
+            x: (self.border.top_left.x + self.border.bottom_right.x) / 2.0,
+            y: (self.border.top_left.y + self.border.bottom_right.y) / 2.0
         };
 
         let new_quad = Quad::from(top_left_corner_1, top_left_corner_2, self.capacity);
@@ -72,11 +72,11 @@ impl Quad {
 
         let bottom_left_corner_1 = Point{
             x: self.border.top_left.x,
-            y: (self.border.top_left.y + self.border.bottom_right.y) / 2
+            y: (self.border.top_left.y + self.border.bottom_right.y) / 2.0
         };
 
         let bottom_left_corner_2 = Point{
-            x: (self.border.top_left.x + self.border.bottom_right.x) / 2,
+            x: (self.border.top_left.x + self.border.bottom_right.x) / 2.0,
             y: self.border.bottom_right.y
         };
 
@@ -84,21 +84,21 @@ impl Quad {
         self.bottom_left_quad = Some(Box::new(new_quad));
 
         let top_right_corner_1 = Point{
-            x: (self.border.top_left.x + self.border.bottom_right.x) / 2,
+            x: (self.border.top_left.x + self.border.bottom_right.x) / 2.0,
             y: self.border.top_left.y
         };
 
         let top_right_corner_2 = Point{
             x: self.border.bottom_right.x,
-            y: (self.border.top_left.y + self.border.bottom_right.y) / 2
+            y: (self.border.top_left.y + self.border.bottom_right.y) / 2.0
         };
 
         let new_quad = Quad::from(top_right_corner_1, top_right_corner_2, self.capacity);
         self.top_right_quad = Some(Box::new(new_quad));
 
         let bottom_right_corner_1 = Point{
-            x: (self.border.top_left.x + self.border.bottom_right.x) / 2,
-            y: (self.border.top_left.y + self.border.bottom_right.y) / 2
+            x: (self.border.top_left.x + self.border.bottom_right.x) / 2.0,
+            y: (self.border.top_left.y + self.border.bottom_right.y) / 2.0
         };
 
         let bottom_right_corner_2 = Point{
@@ -199,8 +199,8 @@ impl Quad {
             return true
         }
 
-        if (self.border.top_left.x + self.border.bottom_right.x) / 2 >= point.x {
-            if (self.border.top_left.y + self.border.bottom_right.y) / 2 >= point.y {
+        if (self.border.top_left.x + self.border.bottom_right.x) / 2.0 >= point.x {
+            if (self.border.top_left.y + self.border.bottom_right.y) / 2.0 >= point.y {
                 if self.top_left_quad.is_none() {
                     return false
                 }
@@ -218,7 +218,7 @@ impl Quad {
             }
         }
         else {
-            if (self.border.top_left.y + self.border.bottom_right.y) / 2 >= point.y {
+            if (self.border.top_left.y + self.border.bottom_right.y) / 2.0 >= point.y {
                 if self.top_right_quad.is_none() {
                     return false;
                 }
@@ -253,15 +253,15 @@ mod tests {
 
     #[test]
     fn test_insert_and_get() {
-        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 4);
+        let mut quad = Quad::from(Point{x: 0.0, y: 0.0}, Point{x: 100.0, y: 100.0}, 4);
 
         let existant_point = Point{
-            x: 5,
-            y: 5
+            x: 5.0,
+            y: 5.0
         };
         let nonexistant_point = Point{
-            x: 7,
-            y: 7
+            x: 7.0,
+            y: 7.0
         };
 
         quad.insert(&existant_point);
@@ -275,11 +275,11 @@ mod tests {
 
     #[test]
     fn test_insert_and_remove() {
-        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 4);
+        let mut quad = Quad::from(Point{x: 0.0, y: 0.0}, Point{x: 100.0, y: 100.0}, 4);
 
         let point = Point{
-            x: 5,
-            y: 5
+            x: 5.0,
+            y: 5.0
         };
 
         quad.insert(&point);
@@ -292,15 +292,15 @@ mod tests {
 
     #[test]
     fn test_insert_and_get_with_subdivide() {
-        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 1);
+        let mut quad = Quad::from(Point{x: 0.0, y: 0.0}, Point{x: 100.0, y: 100.0}, 1);
 
         let existant_point = Point{
-            x: 5,
-            y: 5
+            x: 5.0,
+            y: 5.0
         };
         let nonexistant_point = Point{
-            x: 7,
-            y: 7
+            x: 7.0,
+            y: 7.0
         };
 
         quad.insert(&existant_point);
@@ -314,11 +314,11 @@ mod tests {
 
     #[test]
     fn test_insert_and_remove_with_subdivide() {
-        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 1);
+        let mut quad = Quad::from(Point{x: 0.0, y: 0.0}, Point{x: 100.0, y: 100.0}, 1);
 
         let point = Point{
-            x: 5,
-            y: 5
+            x: 5.0,
+            y: 5.0
         };
 
         quad.insert(&point);
@@ -331,21 +331,21 @@ mod tests {
 
     #[test]
     fn test_find_within_valid_range() {
-        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 1);
+        let mut quad = Quad::from(Point{x: 0.0, y: 0.0}, Point{x: 100.0, y: 100.0}, 1);
 
         let point = Point{
-            x: 5,
-            y: 5
+            x: 5.0,
+            y: 5.0
         };
 
         quad.insert(&point);
 
         let circle = Circle{
             center: Point{
-                x: 0,
-                y: 0
+                x: 0.0,
+                y: 0.0
             },
-            radius: 10
+            radius: 10.0
         };
 
         let points = quad.find_within_range(&circle);
@@ -356,21 +356,21 @@ mod tests {
 
     #[test]
     fn test_find_within_invalid_range() {
-        let mut quad = Quad::from(Point{x: 0, y: 0}, Point{x: 100, y: 100}, 1);
+        let mut quad = Quad::from(Point{x: 0.0, y: 0.0}, Point{x: 100.0, y: 100.0}, 1);
 
         let point = Point{
-            x: 5,
-            y: 5
+            x: 5.0,
+            y: 5.0
         };
 
         quad.insert(&point);
 
         let circle = Circle{
             center: Point{
-                x: 0,
-                y: 0
+                x: 0.0,
+                y: 0.0
             },
-            radius: 1
+            radius: 1.0
         };
 
         let points = quad.find_within_range(&circle);

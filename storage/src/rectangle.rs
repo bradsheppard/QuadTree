@@ -10,12 +10,12 @@ impl Rectangle {
     pub fn new() -> Rectangle {
         return Rectangle { 
             top_left: Point { 
-                x: 0 ,
-                y: 0 
+                x: 0.0 ,
+                y: 0.0 
             }, 
             bottom_right: Point { 
-                x: 0,
-                y: 0 
+                x: 0.0,
+                y: 0.0 
             }
         }
     }

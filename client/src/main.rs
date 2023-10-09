@@ -19,15 +19,15 @@ enum Commands {
 
 #[derive(Args)]
 struct InputPoint {
-    x: i64,
-    y: i64
+    x: f64,
+    y: f64
 }
 
 #[derive(Args)]
 struct InputCircle {
-    x: i64,
-    y: i64,
-    radius: i64
+    x: f64,
+    y: f64,
+    radius: f64
 }
 
 #[tokio::main]

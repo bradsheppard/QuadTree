@@ -1,6 +1,6 @@
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Point {
-    pub x: i64,
-    pub y: i64
+    pub x: f64,
+    pub y: f64
 }
 
