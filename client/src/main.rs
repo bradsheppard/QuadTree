@@ -11,15 +11,21 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Adds a new point to the Quad Tree
     AddPoint(InputPoint),
+    /// Deletes a point from the Quad Tree
     DeletePoint(InputPoint),
+    /// Find all points within the specified circular region
     FindWithinRange(InputCircle),
+    /// Returns all Quad Tree nodes
     GetAllQuads
 }
 
 #[derive(Args)]
 struct InputPoint {
+    /// x coorindate of the input point
     x: f64,
+    /// y coordinate of the input point
     y: f64
 }
 
