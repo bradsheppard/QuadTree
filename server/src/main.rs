@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 use config::Config;
-use tonic::{Request, Response, Status, transport::{Server, server::Connected}};
+use tonic::{Request, Response, Status, transport::Server};
 use storage::{Quad as InMemoryQuad, Point, Circle};
 use proto::{AddPointRequest, GetAllQuadsResponse, DeletePointRequest, FindWithinRangeRequest, FindWithinRangeResponse, Quad, QuadServer, QuadNode};
 
