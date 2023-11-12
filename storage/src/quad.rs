@@ -7,7 +7,7 @@ pub struct Quad {
     pub border: Rectangle,
 
     pub points: Vec<Point>,
-    capacity: usize,
+    capacity: i64,
     pub is_leaf: bool,
 
     pub top_left_quad: Option<Box<Quad>>,
@@ -41,7 +41,7 @@ impl Quad {
         }
     }
 
-    pub fn from(top_left: Point, bottom_right: Point, capacity: usize) -> Quad {
+    pub fn from(top_left: Point, bottom_right: Point, capacity: i64) -> Quad {
         return Quad {
             border: Rectangle::from(&top_left, &bottom_right),
 
@@ -116,7 +116,7 @@ impl Quad {
         }
 
         if self.is_leaf {
-            if self.points.len() < self.capacity {
+            if (self.points.len() as i64) < self.capacity {
                 self.points.push(point.to_owned());
             }
             else {

@@ -1,5 +1,6 @@
 use std::sync::{Arc, RwLock};
-use tonic::{Request, Response, Status, transport::Server};
+use config::Config;
+use tonic::{Request, Response, Status, transport::{Server, server::Connected}};
 use storage::{Quad as InMemoryQuad, Point, Circle};
 use proto::{AddPointRequest, GetAllQuadsResponse, DeletePointRequest, FindWithinRangeRequest, FindWithinRangeResponse, Quad, QuadServer, QuadNode};
 
@@ -203,12 +204,31 @@ impl QuadService {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "[::1]:50051".parse().unwrap();
+    let parsed_config = Config::parse("/etc/quadtree/config.ini");
+    let config = match parsed_config {
+        Ok(r) => r,
+        Err(_) => Config::default()
+    };
+
+    let port = config.port;
+
+    let addr = format!("[::1]:{port}").parse().unwrap();
+
+    let top_left = Point { 
+        x: config.top_left_x,
+        y: config.top_left_y
+    };
+    let bottom_right = Point {
+        x: config.bottom_right_x,
+        y: config.bottom_right_y
+    };
+
+    let quad = InMemoryQuad::from(top_left, bottom_right, config.capacity);
 
     println!("Quad server listening on {}", addr);
 
     let service = QuadService{
-        in_memory_quad: Arc::new(RwLock::new(InMemoryQuad::new()))
+        in_memory_quad: Arc::new(RwLock::new(quad))
     };
 
     let server = QuadServer::new(service);
