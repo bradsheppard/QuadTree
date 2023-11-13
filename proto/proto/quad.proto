@@ -31,6 +31,11 @@ message Circle {
     double radius = 3;
 }
 
+message Rectangle {
+    Point topLeft = 1;
+    Point bottomRight = 2;
+}
+
 message FindWithinRangeRequest {
     Circle circle = 1;
 }
@@ -52,4 +57,6 @@ message QuadNode {
     bool isChild = 5;
     
     repeated Point points = 6;
+
+    Rectangle border = 7;
 }

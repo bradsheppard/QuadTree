@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 use config::Config;
 use tonic::{Request, Response, Status, transport::Server};
 use storage::{Quad as InMemoryQuad, Point, Circle};
-use proto::{AddPointRequest, GetAllQuadsResponse, DeletePointRequest, FindWithinRangeRequest, FindWithinRangeResponse, Quad, QuadServer, QuadNode};
+use proto::{AddPointRequest, GetAllQuadsResponse, DeletePointRequest, FindWithinRangeRequest, FindWithinRangeResponse, Quad, QuadServer, QuadNode, Rectangle, Point as ProtoPoint};
 
 #[derive(Debug, Default)]
 pub struct QuadService {
@@ -120,6 +120,7 @@ impl Quad for QuadService {
         match lock {
             Ok(value) => {
                 let mut target_quad = proto::QuadNode{
+                    border: None,
                     top_left: None,
                     top_right: None,
                     bottom_left: None,
@@ -148,8 +149,20 @@ impl QuadService {
             });
         }
 
+        target_quad.border = Some(Rectangle{
+            top_left: Some(ProtoPoint{
+                x: source_quad.border.top_left.x,
+                y: source_quad.border.top_left.y
+            }),
+            bottom_right: Some(ProtoPoint{
+                x: source_quad.border.bottom_right.x,
+                y: source_quad.border.bottom_right.y
+            })
+        });
+
         if source_quad.top_left_quad.is_some() {
             target_quad.top_left = Some(Box::new(QuadNode{
+                border: None,
                 top_left: None,
                 top_right: None,
                 bottom_left: None,
@@ -163,6 +176,7 @@ impl QuadService {
 
         if source_quad.top_right_quad.is_some() {
             target_quad.top_right = Some(Box::new(QuadNode{
+                border: None,
                 top_left: None,
                 top_right: None,
                 bottom_left: None,
@@ -176,6 +190,7 @@ impl QuadService {
 
         if source_quad.bottom_left_quad.is_some() {
             target_quad.bottom_left = Some(Box::new(QuadNode{
+                border: None,
                 top_left: None,
                 top_right: None,
                 bottom_left: None,
@@ -189,6 +204,7 @@ impl QuadService {
 
         if source_quad.bottom_right_quad.is_some() {
             target_quad.bottom_right = Some(Box::new(QuadNode{
+                border: None,
                 top_left: None,
                 top_right: None,
                 bottom_left: None,
